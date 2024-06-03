@@ -47,7 +47,7 @@ class UserController extends Controller
             "password" => "string|max:16|min:4|required",
         ]);
 
-      
+
 
        try {
         $user = new User();
@@ -56,10 +56,9 @@ class UserController extends Controller
         $user->username = $request->username;
         $user->password = Hash::make($request->password);
         $user->save();
-        $token = $user->createToken("token")->plainTextToken;
+
         return response()->json([
             "message" => "User Created successfully",
-            "token" => $token
         ]);
        }
        catch(ErrorException $e) {
@@ -81,17 +80,7 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(User $user)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UserUpdateRequest $request)
     {
 
@@ -110,21 +99,21 @@ class UserController extends Controller
 
                 $user->email = $request->email;
             }
-           
+
             if($request->has("password")) {
 
                 $user->password = Hash::make($request->password);
             }
 
-      
+
             $user->save();
-            
+
             return response()->json([
                 "message" => "user updated successfully",
                 "user" => $user
 
             ]);
-            
+
         }catch(ErrorException $e) {
             return response()->json([
                 "message" => $e->getMessage()
@@ -141,20 +130,20 @@ class UserController extends Controller
         try {
 
             $user = User::findOrFail($user);
-            
-            
+
+
             $user->delete();
             return response()->json([
                 "message" => "user deleted successfully"
             ]);
-            
+
         }catch(ErrorException $e){
 
-            
+
             return response()->json([
                 "message" => $e->getMessage()
             ]);
-            
+
         }
     }
     public function login(Request $request) {
@@ -170,8 +159,8 @@ class UserController extends Controller
                 "message" => "invalid credentials"
             ]);
         }
-   
-      
+
+
 
         return response()->json([
             "message" => "login successfull",
