@@ -66,16 +66,17 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
+
         $request->validate([
             'title' => "string|required|max:255|min:1",
             "description" => "string|required|min:1|max:300",
-            "user_id" => "numeric|required",
             "image" => "nullable|mimes:jpg,png,jpeg"
         ]);
 
         $post = new Post();
 
         try {
+            $user = Auth::user();
             $imgName = null;
 
             // Handling file upload
@@ -90,7 +91,7 @@ class PostController extends Controller
             // Store post data
             $post->title = $request->title;
             $post->description = $request->description;
-            $post->user_id = $request->user_id;
+            $post->user_id = $user->id;
             $post->image = $imgName;
             $post->save();
 
