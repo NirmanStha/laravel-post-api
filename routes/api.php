@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
+use GuzzleHttp\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +35,9 @@ Route::group(['prefix' => "users"], function () {
     });
 
 
+ });
+ Route::group(["middleware" => "auth:sanctum"], function () {
+    Route::apiResource("posts.comment", CommentController::class);
  });
 
 
