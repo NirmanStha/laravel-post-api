@@ -19,23 +19,29 @@ class PostController extends Controller
      */
     public function index()
     {
-        $imgPath=null;
-        $posts = Post::join("users", "posts.user_id", "=", "users.id")
-            ->select("posts.title", "users.name", "posts.description", "posts.image", "posts.created_at", "posts.updated_at", "posts.id")
+        try{
+
+
+            $posts = Post::join("users", "posts.user_id", "=", "users.id")
+            ->select("posts.title", "users.name", "posts.description", "posts.image", "posts.created_at", "posts.updated_at", "posts.id")->orderBy("created_at", "asc")
             ->get();
 
-        if ($posts->count() > 0) {
+            if ($posts->count() > 0) {
+                return response()->json([
+                    "message" => "request successful",
+                    "posts" => $posts
+                ]);
+            }
 
             return response()->json([
-                "message" => "request successful",
-                "posts" => $posts,
-                "path" => $posts->image !== null ? asset('uploads/post_image/', $posts->image) : ""
+                "message" => "no post available",
             ]);
-        }
-
-        return response()->json([
-            "message" => "no post available",
-        ]);
+            }
+            catch(Exception $e) {
+                return response()->json([
+                    "message" => $e->getMessage()
+                ],500);
+            }
     }
 
     /**
