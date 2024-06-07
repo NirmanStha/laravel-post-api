@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PostResource;
 use App\Models\Post;
 use ErrorException;
 use Exception;
@@ -22,20 +23,21 @@ class PostController extends Controller
         try{
 
 
-            $posts = Post::join("users", "posts.user_id", "=", "users.id")
-            ->select("posts.title", "users.name", "posts.description", "posts.image", "posts.created_at", "posts.updated_at", "posts.id")->orderBy("created_at", "asc")
-            ->get();
+            // $posts = Post::join("users", "posts.user_id", "=", "users.id")
+            // ->select("posts.title", "users.name", "posts.description", "posts.image", "posts.created_at", "posts.updated_at", "posts.id")->orderBy("created_at", "asc")
+            // ->get();
 
-            if ($posts->count() > 0) {
-                return response()->json([
-                    "message" => "request successful",
-                    "posts" => $posts
-                ]);
-            }
+            // if ($posts->count() > 0) {
+            //     return response()->json([
+            //         "message" => "request successful",
+            //         "posts" => $posts
+            //     ]);
+            // }
 
-            return response()->json([
-                "message" => "no post available",
-            ]);
+            // return response()->json([
+            //     "message" => "no post available",
+            // ]);
+            return  PostResource::collection(Post::with('user')->get());
             }
             catch(Exception $e) {
                 return response()->json([
@@ -53,12 +55,7 @@ class PostController extends Controller
         try {
             $user = Auth::user();
             $mypost = Post::where("user_id", $user->id)->get();
-            return response()->json([
-                "message" => "query successful",
-                "user_id" => $user->id,
-                "data" => $mypost
-
-            ]);
+            return PostResource::collection($mypost);
         } catch (Exception $e) {
             Log::error('Error fetching specific post: ' . $e->getMessage());
             return response()->json([
@@ -101,11 +98,7 @@ class PostController extends Controller
             $post->image = $imgName;
             $post->save();
 
-            return response()->json([
-                "message" => "post created successfully",
-                "path" => $imgName !== null ? $path : "",
-                "data" => $post
-            ]);
+            return new PostResource($post);
         } catch (Exception $e) {
             Log::error('Error creating post: ' . $e->getMessage());
             return response()->json([
@@ -121,10 +114,7 @@ class PostController extends Controller
     {
         try {
             $post = Post::findOrFail($id);
-            return response()->json([
-                "message" => "query successful",
-                "data" => $post
-            ]);
+            return new PostResource($post);
         } catch (Exception $e) {
             Log::error('Error fetching post: ' . $e->getMessage());
             return response()->json([
@@ -171,20 +161,13 @@ class PostController extends Controller
                 $post->description = $request->input('description');
             }
 
-            // Log the post object before saving
-            Log::info('Post object before save:', $post->toArray());
 
-            // Save the updated post
+
             $post->save();
 
-            // Log the post object after saving
-            Log::info('Post object after save:', $post->toArray());
 
-            return response()->json([
-                'message' => 'updated successfully',
-                'path' => $imgName !== null ? asset("uploads/post_image/" . $imgName) : "",
-                'data' => $post
-            ]);
+
+            return new PostResource($post);
         } catch (Exception $e) {
             Log::error('Error updating post: ' . $e->getMessage());
             return response()->json([

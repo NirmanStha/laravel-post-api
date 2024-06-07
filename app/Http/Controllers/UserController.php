@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserUpdateRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use ErrorException;
 use Illuminate\Http\Request;
@@ -17,13 +18,11 @@ class UserController extends Controller
     {
         $user = User::all();
         if($user->count() > 0)
-        return response()->json([
-            "data" => $user
-        ],200);
+        return UserResource::collection($user);
         else{
             return response()->json([
                 "message" => "no user found"
-            ],200);
+            ],204);
         }
     }
 
@@ -59,7 +58,7 @@ class UserController extends Controller
 
         return response()->json([
             "message" => "User Created successfully",
-        ]);
+        ],201);
        }
        catch(ErrorException $e) {
         return response()->json([
@@ -75,9 +74,7 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        return response()->json([
-            'data' => $user
-        ]);
+        return new UserResource($user);
     }
 
 
@@ -110,7 +107,7 @@ class UserController extends Controller
 
             return response()->json([
                 "message" => "user updated successfully",
-                "user" => $user
+                new UserResource($user)
 
             ]);
 
